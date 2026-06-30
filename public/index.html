@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Codex 额度</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <svg class="liquid-filter" aria-hidden="true">
+      <filter id="liquidDistort">
+        <feTurbulence
+          id="liquidTurbulence"
+          type="fractalNoise"
+          baseFrequency="0.009 0.018"
+          numOctaves="2"
+          seed="8"
+          result="noise"
+        />
+        <feDisplacementMap
+          id="liquidDisplacement"
+          in="SourceGraphic"
+          in2="noise"
+          scale="0"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+      </filter>
+    </svg>
+    <div class="liquid-bg" aria-hidden="true">
+      <div class="liquid-surface">
+        <span class="liquid-wave wave-a"></span>
+        <span class="liquid-wave wave-b"></span>
+      </div>
+    </div>
+    <main class="shell">
+      <section class="quota-card" aria-live="polite">
+        <div class="card-glow"></div>
+        <header class="card-header">
+          <div class="profile">
+            <div id="avatar" class="avatar" aria-hidden="true">C</div>
+            <h1 id="displayName">Codex</h1>
+          </div>
+          <div id="planBadge" class="plan-badge">--</div>
+        </header>
+
+        <div id="bars" class="bars">
+          <article class="quota-row loading">
+            <div class="row-top">
+              <span>5小时额度</span>
+              <strong>--%</strong>
+            </div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <p>读取中</p>
+          </article>
+          <article class="quota-row loading">
+            <div class="row-top">
+              <span>周额度</span>
+              <strong>--%</strong>
+            </div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <p>读取中</p>
+          </article>
+        </div>
+
+        <footer class="card-footer">
+          <span id="statusText">正在刷新</span>
+          <span id="updatedAt"></span>
+        </footer>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
