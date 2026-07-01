@@ -155,6 +155,7 @@ function runShowcaseScan() {
     card.classList.remove("scanning");
     card.classList.add("badge-flowing");
     scanEndTimer = null;
+    scheduleShowcaseScan();
   }, scanAnimationMs);
 }
 

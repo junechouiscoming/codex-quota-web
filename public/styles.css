@@ -546,7 +546,7 @@ body::after {
 }
 
 .quota-card.badge-flowing .plan-badge::after {
-  animation: badgeGlassFlow 1650ms cubic-bezier(0.34, 0, 0.22, 1) both;
+  animation: badgeGlassFlow 2600ms cubic-bezier(0.34, 0, 0.22, 1) infinite;
 }
 
 .bars {
@@ -643,6 +643,10 @@ body::after {
   animation: fillChargeSweep 1600ms cubic-bezier(0.2, 0.86, 0.22, 1) both;
 }
 
+.card-stage.floating .quota-row:not(.loading) .progress-fill:not(.recalculating) {
+  animation: progressRoll 1200ms linear infinite;
+}
+
 .quota-row p {
   margin: 8px 0 0;
   color: var(--muted);
@@ -699,6 +703,15 @@ body::after {
   to {
     transform: translateX(120%);
     opacity: 0;
+  }
+}
+
+@keyframes progressRoll {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 120px 0, 0 0;
   }
 }
 
