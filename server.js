@@ -9,11 +9,12 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const publicDir = join(__dirname, "public");
 const authFile = join(os.homedir(), ".codex", "auth.json");
 const port = Number(process.env.PORT || 8787);
-const cacheMs = Number(process.env.CACHE_MS || 45_000);
+const refreshMs = 30 * 60_000;
 const clientId = "app_EMoamEEZ73f0CkXaXp7hrann";
 
 let cache = null;
 let inFlight = null;
+let lastRefreshError = null;
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -28,8 +29,7 @@ const server = createServer(async (req, res) => {
     const url = new URL(req.url || "/", `http://${req.headers.host}`);
 
     if (url.pathname === "/api/quota") {
-      const force = url.searchParams.get("refresh") === "1";
-      const data = await getQuota({ force });
+      const data = await getQuota();
       sendJson(res, 200, data);
       return;
     }
@@ -49,37 +49,58 @@ server.listen(port, () => {
   console.log(`Codex quota web is running at http://localhost:${port}`);
 });
 
-async function getQuota({ force = false } = {}) {
-  const now = Date.now();
-  if (!force && cache && now - cache.cachedAt < cacheMs) {
-    return { ...cache.payload, cached: true };
+refreshQuotaCache().catch(() => {});
+setInterval(() => {
+  refreshQuotaCache().catch(() => {});
+}, refreshMs);
+
+async function getQuota() {
+  if (cache) {
+    return {
+      ...cache.payload,
+      cached: true,
+      stale: Boolean(lastRefreshError),
+      error: lastRefreshError ? presentableError(lastRefreshError) : undefined,
+    };
   }
 
-  if (!inFlight) {
-    inFlight = fetchQuota()
-      .then((payload) => {
-        cache = { payload, cachedAt: Date.now() };
-        return payload;
-      })
-      .finally(() => {
-        inFlight = null;
-      });
+  if (inFlight) {
+    return inFlight;
   }
 
-  try {
-    return await inFlight;
-  } catch (error) {
-    if (cache) {
-      return {
-        ...cache.payload,
-        ok: false,
-        cached: true,
-        stale: true,
-        error: presentableError(error),
-      };
-    }
-    throw error;
-  }
+  const error = lastRefreshError || new Error("额度缓存尚未生成，请稍后重试。");
+  error.statusCode = 503;
+  throw error;
+}
+
+function refreshQuotaCache() {
+  if (inFlight) return inFlight;
+
+  inFlight = fetchQuota()
+    .then((payload) => {
+      cache = { payload, cachedAt: Date.now() };
+      lastRefreshError = null;
+      return { ...payload, cached: false };
+    })
+    .catch((error) => {
+      lastRefreshError = error;
+      console.warn(`刷新 Codex 额度缓存失败：${presentableError(error)}`);
+      if (cache) {
+        return {
+          ...cache.payload,
+          ok: false,
+          cached: true,
+          stale: true,
+          error: presentableError(error),
+        };
+      }
+      throw error;
+    })
+    .finally(() => {
+      inFlight = null;
+    });
+
+  return inFlight;
 }
 
 async function fetchQuota() {
@@ -312,6 +333,7 @@ function formatPlan(value) {
   const known = {
     plus: "Plus",
     pro: "Pro",
+    prolite: "Pro",
     free: "Free",
     team: "Team",
     teams: "Team",

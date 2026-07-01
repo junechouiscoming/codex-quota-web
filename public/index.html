@@ -7,26 +7,6 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <svg class="liquid-filter" aria-hidden="true">
-      <filter id="liquidDistort">
-        <feTurbulence
-          id="liquidTurbulence"
-          type="fractalNoise"
-          baseFrequency="0.009 0.018"
-          numOctaves="2"
-          seed="8"
-          result="noise"
-        />
-        <feDisplacementMap
-          id="liquidDisplacement"
-          in="SourceGraphic"
-          in2="noise"
-          scale="0"
-          xChannelSelector="R"
-          yChannelSelector="G"
-        />
-      </filter>
-    </svg>
     <div class="liquid-bg" aria-hidden="true">
       <div class="liquid-surface">
         <span class="liquid-wave wave-a"></span>
@@ -34,40 +14,53 @@
       </div>
     </div>
     <main class="shell">
-      <section class="quota-card" aria-live="polite">
-        <div class="card-glow"></div>
-        <header class="card-header">
-          <div class="profile">
-            <div id="avatar" class="avatar" aria-hidden="true">C</div>
-            <h1 id="displayName">Codex</h1>
-          </div>
-          <div id="planBadge" class="plan-badge">--</div>
-        </header>
+      <div class="card-stage">
+        <div class="card-rotor">
+          <section class="quota-card card-face card-front" aria-live="polite">
+            <div class="card-glow"></div>
+            <header class="card-header">
+              <div class="profile">
+                <div id="avatar" class="avatar" aria-describedby="displayName" tabindex="0"></div>
+                <span id="displayName" class="profile-name">Codex</span>
+              </div>
+              <button id="planBadge" class="plan-badge" type="button" aria-label="翻转卡片查看额度铭文">--</button>
+            </header>
 
-        <div id="bars" class="bars">
-          <article class="quota-row loading">
-            <div class="row-top">
-              <span>5小时额度</span>
-              <strong>--%</strong>
+            <div id="bars" class="bars">
+              <article class="quota-row loading" data-quota-row="primary">
+                <div class="row-top">
+                  <span data-title>5小时额度</span>
+                  <strong data-value="primary">--%</strong>
+                </div>
+                <div class="progress-track"><div class="progress-fill" data-fill="primary"></div></div>
+                <p data-reset>读取中</p>
+              </article>
+              <article class="quota-row loading" data-quota-row="secondary">
+                <div class="row-top">
+                  <span data-title>周额度</span>
+                  <strong data-value="secondary">--%</strong>
+                </div>
+                <div class="progress-track"><div class="progress-fill" data-fill="secondary"></div></div>
+                <p data-reset>读取中</p>
+              </article>
             </div>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <p>读取中</p>
-          </article>
-          <article class="quota-row loading">
-            <div class="row-top">
-              <span>周额度</span>
-              <strong>--%</strong>
+
+            <footer class="card-footer">
+              <span id="updatedAt"></span>
+            </footer>
+          </section>
+
+          <section class="quota-card card-face card-back" aria-hidden="true" tabindex="-1" role="button" aria-label="返回额度面板">
+            <div class="card-glow"></div>
+            <div class="card-back-panel inscription-panel">
+              <p class="back-label">CODEX QUOTA CARD</p>
+              <p id="quotaInscription" class="quota-inscription">今日算力校准中。</p>
+              <p id="inscriptionDetail" class="inscription-detail">持卡人 CODEX · --</p>
+              <p id="inscriptionSeal" class="inscription-seal">CODΞX RESERVED</p>
             </div>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <p>读取中</p>
-          </article>
+          </section>
         </div>
-
-        <footer class="card-footer">
-          <span id="statusText">正在刷新</span>
-          <span id="updatedAt"></span>
-        </footer>
-      </section>
+      </div>
     </main>
 
     <script src="/app.js" type="module"></script>
