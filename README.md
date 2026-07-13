@@ -10,8 +10,8 @@ A lightweight Codex quota card. The server reads the local `~/.codex/auth.json`,
 
 ## 重要功能 / Features
 
-- 展示 5 小时额度和周额度的剩余百分比
-- Shows the remaining percentage for the 5-hour quota and weekly quota
+- 根据上游实际返回的额度窗口展示剩余百分比（兼容仅周额度或同时有多个窗口）
+- Shows remaining percentage for the quota windows returned by the upstream API (including weekly-only and multi-window plans)
 - 显示额度重置时间和最近更新时间
 - Shows quota reset times and the latest update time
 - 支持头像、套餐标识、卡片翻面和背面额度铭文

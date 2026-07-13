@@ -122,6 +122,13 @@ async function fetchQuota() {
     fallbackName;
   const username = cleanString(profileInfo.username) || displayName;
   const avatarURL = cleanString(profileInfo.profile_picture_url) || cleanString(profileInfo.profilePictureUrl) || null;
+  const rateLimit = usage.rate_limit || usage.rateLimit || {};
+  const quotas = [
+    ["primary", rateLimit.primary_window || rateLimit.primaryWindow],
+    ["secondary", rateLimit.secondary_window || rateLimit.secondaryWindow],
+  ]
+    .filter(([, window]) => isQuotaWindow(window))
+    .map(([id, window]) => makeWindow(id, windowTitle(window), window));
 
   return {
     ok: true,
@@ -132,10 +139,7 @@ async function fetchQuota() {
     displayName,
     avatarURL,
     planName: formatPlan(usage.plan_type || usage.planType || credentials.planType),
-    quotas: [
-      makeWindow("primary", "5小时额度", usage.rate_limit?.primary_window || usage.rateLimit?.primaryWindow),
-      makeWindow("secondary", "周额度", usage.rate_limit?.secondary_window || usage.rateLimit?.secondaryWindow),
-    ],
+    quotas,
   };
 }
 
@@ -249,6 +253,19 @@ async function getJson(endpoint, credentials) {
     throw new Error(`Codex 额度接口返回 HTTP ${response.status}。`);
   }
   return response.json();
+}
+
+function isQuotaWindow(value) {
+  return Boolean(value && typeof value === "object");
+}
+
+function windowTitle(apiWindow) {
+  const seconds = number(apiWindow.limit_window_seconds ?? apiWindow.limitWindowSeconds);
+
+  if (seconds === 7 * 24 * 60 * 60) return "周额度";
+  if (seconds && seconds % (24 * 60 * 60) === 0) return `${seconds / (24 * 60 * 60)}天额度`;
+  if (seconds && seconds % (60 * 60) === 0) return `${seconds / (60 * 60)}小时额度`;
+  return "额度";
 }
 
 function makeWindow(id, title, apiWindow = {}) {
